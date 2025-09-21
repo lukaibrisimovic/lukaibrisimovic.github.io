@@ -35,6 +35,7 @@ html, body {
   gap: 2vw;
   font-size: clamp(40px, 10vw, 120px);
   color: #fff;
+  opacity: 0; /* hidden by default */
   transition: opacity 0.3s ease;
 }
 
@@ -67,7 +68,7 @@ html, body {
   }
 
   .time-section {
-    flex-direction: row;  /* keep digit + label side by side */
+    flex-direction: row;
     align-items: center;
     gap: 0.2em;
   }
@@ -141,8 +142,8 @@ function startCountdown(){
       if(updateTimer()){
         clearInterval(timerInterval);
         const countdownEl = document.getElementById('countdown');
-        countdownEl.style.opacity=0;
-        setTimeout(resolve,3000);
+        countdownEl.style.opacity = 0;
+        setTimeout(resolve, 300); 
       }
     },1000);
     updateTimer();
@@ -187,7 +188,7 @@ const bgStars = [];
 for(let i=0;i<totalBGStars;i++) bgStars.push(new BGStar());
 let bgProgressStart = null;
 
-// JL positions (same as before)
+// JL positions
 const offCanvas = document.createElement('canvas');
 const offCtx = offCanvas.getContext('2d');
 offCanvas.width = width; offCanvas.height = height;
@@ -256,7 +257,16 @@ function animate(timestamp){
 }
 
 async function main(){
-  await startCountdown();
+  const now = new Date();
+  const countdownEl = document.getElementById('countdown');
+
+  if (targetDate - now > 0) {
+    // Show countdown only if future
+    countdownEl.style.opacity = 1;
+    await startCountdown();
+  }
+
+  // Start animation
   jlProgressStart = null;
   bgProgressStart = null;
   requestAnimationFrame(animate);
