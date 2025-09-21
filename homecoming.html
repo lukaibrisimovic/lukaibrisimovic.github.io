@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homecoming</title>
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  background: #000;
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.timer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 2vw;
+  font-size: 10vw;
+  color: #fff;
+  transition: opacity 3s ease;
+}
+
+.time-section {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2em;
+}
+
+.digit {
+  display: inline-block;
+  width: 2ch;
+  text-align: right;
+}
+
+.label {
+  font-size: 0.25em;
+  color: #aaa;
+}
+
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="timer" id="countdown">
+    <div class="time-section" id="days">
+      <div class="digit">00</div><div class="label">d</div>
+    </div>
+    <div class="time-section" id="hours">
+      <div class="digit">00</div><div class="label">h</div>
+    </div>
+    <div class="time-section" id="minutes">
+      <div class="digit">00</div><div class="label">m</div>
+    </div>
+    <div class="time-section" id="seconds">
+      <div class="digit">00</div><div class="label">s</div>
+    </div>
+  </div>
+  <canvas id="stars"></canvas>
+</div>
+
+<script>
+// ---------------- Countdown ----------------
+function pad(num) { return num.toString().padStart(2, '0'); }
+
+const targetDate = new Date('2025-09-21T12:00:00-05:00');
+let timerInterval;
+
+function updateTimer() {
+  const now = new Date();
+  let diff = targetDate - now;
+  if (diff <= 0) return true;
+
+  const days = Math.floor(diff / (1000*60*60*24));
+  diff -= days*(1000*60*60*24);
+  const hours = Math.floor(diff/(1000*60*60));
+  diff -= hours*(1000*60*60);
+  const minutes = Math.floor(diff/(1000*60));
+  diff -= minutes*(1000*60);
+  const seconds = Math.floor(diff/1000);
+
+  const values = {days, hours, minutes, seconds};
+  for (const [key, value] of Object.entries(values)){
+    document.getElementById(key).querySelector('.digit').textContent = pad(value);
+  }
+  return false;
+}
+
+function startCountdown(){
+  return new Promise(resolve=>{
+    timerInterval = setInterval(()=>{
+      if(updateTimer()){
+        clearInterval(timerInterval);
+        const countdownEl = document.getElementById('countdown');
+        countdownEl.style.opacity=0;
+        setTimeout(resolve,3000);
+      }
+    },1000);
+    updateTimer();
+  });
+}
+
+// ---------------- Canvas & Stars ----------------
+const canvas=document.getElementById('stars');
+const ctx=canvas.getContext('2d');
+let width=canvas.width=window.innerWidth;
+let height=canvas.height=window.innerHeight;
+
+// ---------------- Background Stars ----------------
+class BGStar {
+  constructor(){ this.reset(); }
+  reset(){
+    this.x=Math.random()*width;
+    this.y=Math.random()*height;
+    this.size=Math.random()*1.5;
+    this.alpha=0;
+    this.life=6000 + Math.random()*6000;
+    this.visible=false;
+  }
+  spawn(now){
+    this.birth=now;
+    this.visible=true;
+  }
+  update(now){
+    if(!this.visible) return;
+    let age=(now-this.birth)%this.life;
+    this.alpha=Math.sin((age/this.life)*Math.PI);
+  }
+  draw(){
+    if(!this.visible) return;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
+    ctx.shadowBlur=1.5; ctx.shadowColor='white';
+    ctx.fill(); ctx.shadowBlur=0;
+  }
+}
+
+const totalBGStars = 700;
+const bgStars=[];
+for(let i=0;i<totalBGStars;i++) bgStars.push(new BGStar());
+
+let bgProgressStart = null;
+
+// ---------------- JL Positions ----------------
+const offCanvas=document.createElement('canvas');
+const offCtx=offCanvas.getContext('2d');
+offCanvas.width=width; offCanvas.height=height;
+const fontSize=Math.min(width,height)/3;
+offCtx.fillStyle='white';
+offCtx.font=`${fontSize}px sans-serif`;
+offCtx.textAlign='center';
+offCtx.textBaseline='middle';
+offCtx.fillText('J+L', width/2, height/2);
+
+const imageData=offCtx.getImageData(0,0,width,height).data;
+const jlPositions=[];
+for(let y=0;y<height;y+=5){
+  for(let x=0;x<width;x+=5){
+    if(imageData[(y*width+x)*4+3]>128) jlPositions.push({x,y});
+  }
+}
+
+// ---------------- JL Star Class ----------------
+class JLStar{
+  constructor(x,y){
+    this.x=x; this.y=y;
+    this.size=Math.random()*1+0.5;
+    this.alpha=0;
+    this.visible=false;
+    this.birth=0;
+    this.life=4000;
+  }
+  reset(now,life){ 
+    this.birth=now; 
+    this.life=life; 
+    this.visible=true; 
+  }
+  update(now){
+    if(!this.visible) return;
+    let age=now-this.birth;
+    if(age>this.life){ this.visible=false; return; }
+    let t=age/this.life;
+    this.alpha=Math.sin(t*Math.PI);
+  }
+  draw(){
+    if(!this.visible) return;
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${this.alpha})`;
+    ctx.shadowBlur=2; ctx.shadowColor='white';
+    ctx.fill(); ctx.shadowBlur=0;
+  }
+}
+const jlStars=jlPositions.map(pos=>new JLStar(pos.x,pos.y));
+
+// ---------------- Animation ----------------
+let jlProgressStart = null;
+const jlEmergenceDuration = 30*1000; // 5 minutes
+const skyBuildDuration = 30*1000; // 30 seconds for slow sky
+
+function animate(timestamp){
+  if(!jlProgressStart) jlProgressStart = timestamp;
+  if(!bgProgressStart) bgProgressStart = timestamp;
+
+  ctx.clearRect(0,0,width,height);
+
+  // ---------------- Sky Stars ----------------
+  const elapsed = timestamp - bgProgressStart;
+  let skyFraction = Math.min(elapsed/skyBuildDuration,1);
+  
+  // Cubic ease-in for very slow start
+  skyFraction = Math.pow(skyFraction, 3); 
+
+  // Determine how many stars to spawn this frame
+  const starsToSpawn = Math.ceil(totalBGStars * 0.02 * skyFraction);
+  let spawned = 0;
+  for(const star of bgStars){
+    if(!star.visible && spawned < starsToSpawn){
+      star.spawn(timestamp);
+      spawned++;
+    }
+  }
+
+  // Update & draw all visible background stars
+  bgStars.forEach(star=>{
+    star.update(timestamp);
+    star.draw();
+  });
+
+  // ---------------- JL Stars ----------------
+  if(elapsed > skyBuildDuration){
+    const jlElapsed = timestamp - (jlProgressStart + skyBuildDuration);
+    const jlProgress = Math.min(jlElapsed / jlEmergenceDuration, 1);
+    const baseDensity = 0.001;
+    const densityFactor = baseDensity + baseDensity * 8 * jlProgress;
+
+    jlStars.forEach(star=>{
+      if(!star.visible && Math.random() < densityFactor){
+        star.reset(timestamp, 6000 + Math.random()*6000);
+      }
+      star.update(timestamp);
+      star.draw();
+    });
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// ---------------- Main ----------------
+async function main(){
+  await startCountdown();
+  jlProgressStart = null;
+  bgProgressStart = null;
+  requestAnimationFrame(animate);
+}
+
+// ---------------- Resize ----------------
+window.addEventListener('resize',()=>{
+  width=canvas.width=window.innerWidth;
+  height=canvas.height=window.innerHeight;
+});
+
+main();
+</script>
+</body>
+</html>
