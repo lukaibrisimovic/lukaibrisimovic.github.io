@@ -1,3 +1,5 @@
+Old
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,77 +24,14 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            transition: padding-top 0.5s ease;
-        }
-
-        .search-wrapper {
-            width: 100%;
-            max-width: 600px;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            /* Start position - centered */
-            position: relative;
-            top: 0;
-        }
-
-        /* When search has results, move the wrapper up */
-        body.has-results .search-wrapper {
-            position: relative;
-            top: -100px; /* Adjust this value based on how much you want it to slide up */
         }
 
         #search {
             width: 100%;
+            max-width: 600px;
             --pagefind-ui-border-width: 2px;
             --pagefind-ui-border-radius: 24px;
         }
-
-        /* Smooth transitions for Pagefind UI elements */
-        .pagefind-ui__results {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
-        }
-
-        body.has-results .pagefind-ui__results {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .pagefind-ui__result {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        body.has-results .pagefind-ui__result {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .pagefind-ui__result-inner {
-            transition: all 0.3s ease;
-        }
-
-        .pagefind-ui__result:hover .pagefind-ui__result-inner {
-            transform: translateY(-2px);
-        }
-
-        .pagefind-ui__message {
-            opacity: 0;
-            transition: opacity 0.4s ease 0.2s;
-        }
-
-        body.has-results .pagefind-ui__message {
-            opacity: 1;
-        }
-
-        /* Stagger animation for individual results */
-        body.has-results .pagefind-ui__result:nth-child(1) { transition-delay: 0.25s; }
-        body.has-results .pagefind-ui__result:nth-child(2) { transition-delay: 0.3s; }
-        body.has-results .pagefind-ui__result:nth-child(3) { transition-delay: 0.35s; }
-        body.has-results .pagefind-ui__result:nth-child(4) { transition-delay: 0.4s; }
-        body.has-results .pagefind-ui__result:nth-child(5) { transition-delay: 0.45s; }
-        body.has-results .pagefind-ui__result:nth-child(6) { transition-delay: 0.5s; }
         
         .home-link {
             position: fixed;
@@ -127,9 +66,7 @@
     </style>
 </head>
 <body>
-    <div class="search-wrapper">
-        <div id="search"></div>
-    </div>
+    <div id="search"></div>
 
     <a href="/" class="home-link">
         <img src="../img/safari-pinned-tab.svg" alt="Main Site" class="pinwheel-icon">
@@ -139,90 +76,8 @@
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
-            const pagefindUI = new PagefindUI({ 
-                element: "#search", 
-                showImages: false
-            });
-
-            const searchElement = document.getElementById('search');
-            const body = document.body;
-
-            // Track search state
-            let hasActiveSearch = false;
-
-            // Improved observer with better timing
-            const observer = new MutationObserver((mutations) => {
-                let shouldAddResultsClass = false;
-                
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList') {
-                        mutation.addedNodes.forEach((node) => {
-                            if (node.nodeType === 1 && // Element node
-                                (node.classList?.contains('pagefind-ui__results') || 
-                                 node.classList?.contains('pagefind-ui__message'))) {
-                                shouldAddResultsClass = true;
-                            }
-                        });
-                    }
-                });
-
-                if (shouldAddResultsClass && hasActiveSearch) {
-                    // Use requestAnimationFrame for smoother timing
-                    requestAnimationFrame(() => {
-                        body.classList.add('has-results');
-                    });
-                }
-            });
-
-            // Start observing
-            observer.observe(searchElement, {
-                childList: true,
-                subtree: true
-            });
-
-            // Handle search input focus and typing
-            const searchInput = document.querySelector('#search input[type="search"]');
-            if (searchInput) {
-                searchInput.addEventListener('focus', () => {
-                    hasActiveSearch = true;
-                    body.classList.add('has-results');
-                });
-
-                searchInput.addEventListener('input', (e) => {
-                    hasActiveSearch = !!e.target.value.trim();
-                    if (!hasActiveSearch) {
-                        body.classList.remove('has-results');
-                    }
-                });
-
-                searchInput.addEventListener('blur', (e) => {
-                    // Only remove if there are no results and no text
-                    const hasResults = document.querySelector('.pagefind-ui__results') !== null;
-                    const hasText = e.target.value.trim() !== '';
-                    
-                    if (!hasResults && !hasText) {
-                        hasActiveSearch = false;
-                        body.classList.remove('has-results');
-                    }
-                });
-            }
-
-            // Also handle when user clears search completely
-            document.addEventListener('click', (e) => {
-                if (e.target.matches('.pagefind-ui__reset')) {
-                    setTimeout(() => {
-                        const hasResults = document.querySelector('.pagefind-ui__results') !== null;
-                        const searchInput = document.querySelector('#search input[type="search"]');
-                        const hasText = searchInput && searchInput.value.trim() !== '';
-                        
-                        if (!hasResults && !hasText) {
-                            hasActiveSearch = false;
-                            body.classList.remove('has-results');
-                        }
-                    }, 50);
-                }
-            });
-        });
+        new PagefindUI({ element: "#search", showImages: false});
+    });
     </script>
 </body>
 </html>
