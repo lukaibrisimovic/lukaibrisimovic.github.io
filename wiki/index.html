@@ -136,14 +136,119 @@
     </a>
 
     <!-- Pagefind JS only (no CSS) -->
-     <!-- Pagefind JS -->
-    <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
-    <script src="/pagefind/pagefind-ui.js"></script>
-    <div id="search"></div>
+    <script src="pagefind/pagefind-ui.js"></script>
     <script>
-        window.addEventListener('DOMContentLoaded', (event) => {
-            new PagefindUI({ element: "#search", showSubResults: true });
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const resultsContainer = document.getElementById('pagefind-results');
+            
+            // Focus on search input
+            searchInput.focus();
+            
+            // Initialize Pagefind but don't let it create UI
+            let pagefindInitialized = false;
+            
+            function initializePagefind() {
+                if (typeof PagefindUI !== 'undefined' && !pagefindInitialized) {
+                    try {
+                        // Create PagefindUI but hide its default UI
+                        const pagefind = new PagefindUI({ 
+                            element: "#pagefind-hidden",
+                            showImages: false
+                        });
+                        
+                        // Hide Pagefind's default search input
+                        const pagefindInput = document.querySelector('.pagefind-ui__search-input');
+                        if (pagefindInput) {
+                            pagefindInput.style.display = 'none';
+                        }
+                        
+                        pagefindInitialized = true;
+                        console.log('Pagefind initialized (hidden UI)');
+                        
+                    } catch (error) {
+                        console.error('Pagefind error:', error);
+                    }
+                }
+            }
+            
+            // Handle search with our custom input
+            let searchTimeout;
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                const query = e.target.value.trim();
+                
+                if (query.length === 0) {
+                    resultsContainer.innerHTML = '';
+                    return;
+                }
+                
+                if (query.length < 2) {
+                    resultsContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Type more characters...</div>';
+                    return;
+                }
+                
+                searchTimeout = setTimeout(() => {
+                    performSearch(query);
+                }, 300);
+            });
+            
+            async function performSearch(query) {
+                if (!window.Pagefind) {
+                    resultsContainer.innerHTML = '<div class="no-results">Search engine loading...</div>';
+                    // Try to initialize Pagefind
+                    setTimeout(initializePagefind, 100);
+                    return;
+                }
+                
+                try {
+                    const search = await window.Pagefind.search(query);
+                    
+                    if (!search || !search.results || search.results.length === 0) {
+                        resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+                        return;
+                    }
+                    
+                    // Get full result data
+                    const resultData = await Promise.all(
+                        search.results.slice(0, 10).map(result => result.data())
+                    );
+                    
+                    // Display results in our custom format
+                    let resultsHTML = '';
+                    
+                    for (const result of resultData) {
+                        if (!result || !result.url) continue;
+                        
+                        const excerpt = result.excerpt || '';
+                        const title = result.meta?.title || result.url.split('/').pop() || 'Untitled';
+                        
+                        resultsHTML += `
+                            <div class="pagefind-result">
+                                <a href="${result.url}">${title}</a>
+                                ${excerpt ? `<div class="pagefind-excerpt">${excerpt}</div>` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    if (resultsHTML === '') {
+                        resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+                    } else {
+                        resultsContainer.innerHTML = resultsHTML;
+                    }
+                    
+                } catch (error) {
+                    console.error('Search error:', error);
+                    resultsContainer.innerHTML = '<div class="no-results">Search temporarily unavailable</div>';
+                }
+            }
+            
+            // Initialize Pagefind in background
+            initializePagefind();
         });
     </script>
+    
+    <!-- Hidden container for Pagefind -->
+    <div id="pagefind-hidden" style="display: none;"></div>
 </body>
 </html>
