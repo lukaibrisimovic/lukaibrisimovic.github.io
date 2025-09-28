@@ -13,32 +13,31 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-        
+
         body {
             background-color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* keeps content dead center */
             padding: 20px;
         }
 
+        /* Search container (handles sliding up) */
         #search-container {
             display: flex;
             justify-content: center;
             width: 100%;
-            transition: transform 0.4s ease, margin 0.4s ease;
-            display: flex; 
-            align-items: center; 
-            min-height: 100vh;
+            transition: transform 0.4s ease;
         }
 
+        /* When results appear → move search bar upward */
         #search-container.active {
-            transform: translateY(-15vh); /* slide up when results show */
-            margin-top: 5vh;
+            transform: translateY(-20vh);
         }
 
+        /* Actual search bar */
         #search {
             width: 100%;
             max-width: 600px;
@@ -46,34 +45,22 @@
             --pagefind-ui-border-radius: 24px;
         }
 
-        /* Base hidden state for results */
+        /* Smooth staggered results animation */
         .pagefind-ui__result {
             opacity: 0;
             transform: translateY(10px);
         }
 
-        /* When results container is active, trigger animations */
         .pagefind-ui__results.active .pagefind-ui__result {
             animation: resultFadeIn 0.4s ease forwards;
         }
 
-        /* Stagger using nth-child */
-        .pagefind-ui__results.active .pagefind-ui__result:nth-child(1) {
-            animation-delay: 0.05s;
-        }
-        .pagefind-ui__results.active .pagefind-ui__result:nth-child(2) {
-            animation-delay: 0.1s;
-        }
-        .pagefind-ui__results.active .pagefind-ui__result:nth-child(3) {
-            animation-delay: 0.15s;
-        }
-        .pagefind-ui__results.active .pagefind-ui__result:nth-child(4) {
-            animation-delay: 0.2s;
-        }
-        .pagefind-ui__results.active .pagefind-ui__result:nth-child(5) {
-            animation-delay: 0.25s;
-        }
-        /* add more if you expect lots of results */
+        /* Staggered animation delays (extendable if needed) */
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(1) { animation-delay: 0.05s; }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(2) { animation-delay: 0.1s; }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(3) { animation-delay: 0.15s; }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(4) { animation-delay: 0.2s; }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(5) { animation-delay: 0.25s; }
 
         @keyframes resultFadeIn {
             from {
@@ -85,7 +72,8 @@
                 transform: translateY(0);
             }
         }
-        
+
+        /* Home link at bottom */
         .home-link {
             position: fixed;
             bottom: 30px;
@@ -101,21 +89,22 @@
             padding: 8px 16px;
             border-radius: 20px;
         }
-        
+
         .home-link:hover {
             color: #4285f4;
             background: #f8f9fa;
         }
-        
+
         .pinwheel-icon {
             width: 20px;
             height: 20px;
             transition: transform 0.3s ease;
         }
-        
+
         .home-link:hover .pinwheel-icon {
             transform: rotate(180deg);
         }
+
     </style>
 </head>
 <body>
