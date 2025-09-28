@@ -22,6 +22,13 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            transition: padding 0.3s ease; /* Smooth padding transition */
+        }
+
+        /* When search has results, adjust body padding to move content up smoothly */
+        body.has-results {
+            justify-content: flex-start;
+            padding-top: 40px;
         }
 
         #search {
@@ -29,7 +36,66 @@
             max-width: 600px;
             --pagefind-ui-border-width: 2px;
             --pagefind-ui-border-radius: 24px;
+            transition: all 0.3s ease; /* Smooth transition for search bar */
         }
+
+        /* Smooth transitions for Pagefind UI elements */
+        .pagefind-ui__results {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        .pagefind-ui__result {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInUp 0.3s ease forwards;
+        }
+
+        .pagefind-ui__result-inner {
+            transition: all 0.2s ease;
+        }
+
+        .pagefind-ui__result:hover .pagefind-ui__result-inner {
+            transform: translateY(-2px);
+        }
+
+        .pagefind-ui__message {
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeIn 0.3s ease forwards;
+        }
+
+        /* Keyframe animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Stagger animation for individual results */
+        .pagefind-ui__result:nth-child(1) { animation-delay: 0.05s; }
+        .pagefind-ui__result:nth-child(2) { animation-delay: 0.1s; }
+        .pagefind-ui__result:nth-child(3) { animation-delay: 0.15s; }
+        .pagefind-ui__result:nth-child(4) { animation-delay: 0.2s; }
+        .pagefind-ui__result:nth-child(5) { animation-delay: 0.25s; }
+        .pagefind-ui__result:nth-child(6) { animation-delay: 0.3s; }
         
         .home-link {
             position: fixed;
@@ -74,8 +140,45 @@
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
-        new PagefindUI({ element: "#search", showImages: false});
-    });
+            const pagefindUI = new PagefindUI({ 
+                element: "#search", 
+                showImages: false
+            });
+
+            // Add smooth transitions when search results appear
+            const searchElement = document.getElementById('search');
+            const body = document.body;
+
+            // Observer to watch for search results
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        const hasResults = document.querySelector('.pagefind-ui__results') !== null;
+                        const hasMessage = document.querySelector('.pagefind-ui__message') !== null;
+                        
+                        if (hasResults || hasMessage) {
+                            body.classList.add('has-results');
+                        } else {
+                            body.classList.remove('has-results');
+                        }
+                    }
+                });
+            });
+
+            // Start observing
+            observer.observe(searchElement, {
+                childList: true,
+                subtree: true
+            });
+
+            // Also add transition for the search input focus
+            const searchInput = document.querySelector('#search input[type="search"]');
+            if (searchInput) {
+                searchInput.addEventListener('focus', () => {
+                    body.classList.add('has-results');
+                });
+            }
+        });
     </script>
 </body>
 </html>
