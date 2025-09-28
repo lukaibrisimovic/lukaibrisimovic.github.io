@@ -14,11 +14,11 @@
         
         body {
             background-color: #ffffff;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 40px 20px 80px 20px;
         }
         
         .search-container {
@@ -27,7 +27,7 @@
             text-align: center;
         }
         
-        .search-bar {
+        .search-input {
             width: 100%;
             padding: 16px 24px;
             font-size: 16px;
@@ -37,15 +37,23 @@
             transition: all 0.2s ease;
             color: #333;
             background: white;
+            margin-bottom: 30px;
         }
         
-        .search-bar:focus {
+        .search-input:focus {
             border-color: #4285f4;
             box-shadow: 0 1px 6px rgba(66, 133, 244, 0.2);
         }
         
-        .search-bar::placeholder {
+        .search-input::placeholder {
             color: #9e9e9e;
+        }
+        
+        .status {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            min-height: 20px;
         }
         
         .home-link {
@@ -78,56 +86,17 @@
         .home-link:hover .pinwheel-icon {
             transform: rotate(180deg);
         }
-        
-        /* Pagefind results styling to match minimal design */
-        #pagefind-results {
-            margin-top: 20px;
-            text-align: left;
-        }
-        
-        .pagefind-result {
-            padding: 16px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .pagefind-result:last-child {
-            border-bottom: none;
-        }
-        
-        .pagefind-result a {
-            color: #1a0dab;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 16px;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .pagefind-result a:hover {
-            text-decoration: underline;
-        }
-        
-        .pagefind-excerpt {
-            color: #4d5156;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .no-results {
-            text-align: center;
-            color: #666;
-            padding: 40px 20px;
-            font-style: italic;
-        }
     </style>
+    
+    <!-- Pagefind CSS -->
+    <link href="pagefind/pagefind-ui.css" rel="stylesheet">
 </head>
 <body>
     <div class="search-container">
-        <!-- Single search bar -->
-        <input type="text" class="search-bar" placeholder="Search wiki..." id="search-input" autofocus>
-        
-        <!-- Pagefind results will go here -->
-        <div id="pagefind-results"></div>
+        <h1 style="margin-bottom: 20px; color: #333; font-weight: 300;">Search Wiki</h1>
+        <input type="text" class="search-input" placeholder="Search knowledge base..." id="search-input" autofocus>
+        <div id="status" class="status">Loading search...</div>
+        <div id="search"></div>
     </div>
 
     <a href="/" class="home-link">
@@ -135,120 +104,104 @@
         Main Site
     </a>
 
-    <!-- Pagefind JS only (no CSS) -->
+    <!-- Pagefind JS -->
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('status');
             const searchInput = document.getElementById('search-input');
-            const resultsContainer = document.getElementById('pagefind-results');
             
-            // Focus on search input
+            // Focus search input
             searchInput.focus();
             
-            // Initialize Pagefind but don't let it create UI
-            let pagefindInitialized = false;
+            // Initialize Pagefind
+            initializePagefind();
             
             function initializePagefind() {
-                if (typeof PagefindUI !== 'undefined' && !pagefindInitialized) {
+                if (typeof PagefindUI !== 'undefined') {
                     try {
-                        // Create PagefindUI but hide its default UI
-                        const pagefind = new PagefindUI({ 
-                            element: "#pagefind-hidden",
-                            showImages: false
+                        new PagefindUI({ 
+                            element: "#search",
+                            showImages: false,
+                            showEmptyFilters: false,
+                            autofocus: false, // We're handling focus manually
+                            processResult: (result) => {
+                                // You can filter results here if needed
+                                return result;
+                            }
                         });
                         
-                        // Hide Pagefind's default search input
-                        const pagefindInput = document.querySelector('.pagefind-ui__search-input');
-                        if (pagefindInput) {
-                            pagefindInput.style.display = 'none';
-                        }
-                        
-                        pagefindInitialized = true;
-                        console.log('Pagefind initialized (hidden UI)');
+                        statusElement.innerHTML = '🔍 Search ready - start typing';
+                        console.log('Pagefind initialized successfully');
                         
                     } catch (error) {
                         console.error('Pagefind error:', error);
+                        statusElement.innerHTML = '⚠️ Search error - using manual fallback';
+                        initializeManualSearch();
                     }
+                } else {
+                    statusElement.innerHTML = '⚠️ Pagefind not loaded - using manual search';
+                    initializeManualSearch();
                 }
             }
             
-            // Handle search with our custom input
-            let searchTimeout;
-            searchInput.addEventListener('input', function(e) {
-                clearTimeout(searchTimeout);
-                const query = e.target.value.trim();
+            function initializeManualSearch() {
+                // Simple manual search fallback
+                const manualPages = [
+                    { 
+                        title: "Tom Hanks", 
+                        url: "tom-hanks.html", 
+                        excerpt: "Academy Award winning actor and filmmaker" 
+                    },
+                    { 
+                        title: "Physics Concepts", 
+                        url: "physics.html", 
+                        excerpt: "Fundamental concepts in physics" 
+                    }
+                    // Add more pages here
+                ];
                 
-                if (query.length === 0) {
-                    resultsContainer.innerHTML = '';
-                    return;
-                }
+                const searchContainer = document.getElementById('search');
                 
-                if (query.length < 2) {
-                    resultsContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Type more characters...</div>';
-                    return;
-                }
-                
-                searchTimeout = setTimeout(() => {
-                    performSearch(query);
-                }, 300);
-            });
-            
-            async function performSearch(query) {
-                if (!window.Pagefind) {
-                    resultsContainer.innerHTML = '<div class="no-results">Search engine loading...</div>';
-                    // Try to initialize Pagefind
-                    setTimeout(initializePagefind, 100);
-                    return;
-                }
-                
-                try {
-                    const search = await window.Pagefind.search(query);
+                searchInput.addEventListener('input', function(e) {
+                    const query = e.target.value.toLowerCase().trim();
                     
-                    if (!search || !search.results || search.results.length === 0) {
-                        resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+                    if (query.length < 2) {
+                        searchContainer.innerHTML = '';
+                        statusElement.innerHTML = 'Type to search...';
                         return;
                     }
                     
-                    // Get full result data
-                    const resultData = await Promise.all(
-                        search.results.slice(0, 10).map(result => result.data())
+                    const results = manualPages.filter(page => 
+                        page.title.toLowerCase().includes(query) ||
+                        page.excerpt.toLowerCase().includes(query)
                     );
                     
-                    // Display results in our custom format
-                    let resultsHTML = '';
+                    statusElement.innerHTML = `Found ${results.length} result${results.length !== 1 ? 's' : ''}`;
                     
-                    for (const result of resultData) {
-                        if (!result || !result.url) continue;
-                        
-                        const excerpt = result.excerpt || '';
-                        const title = result.meta?.title || result.url.split('/').pop() || 'Untitled';
-                        
-                        resultsHTML += `
-                            <div class="pagefind-result">
-                                <a href="${result.url}">${title}</a>
-                                ${excerpt ? `<div class="pagefind-excerpt">${excerpt}</div>` : ''}
+                    if (results.length === 0) {
+                        searchContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">No results found</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    results.forEach(page => {
+                        html += `
+                            <div style="padding: 20px; border: 1px solid #f0f0f0; border-radius: 8px; margin-bottom: 15px;">
+                                <a href="${page.url}" style="color: #1a0dab; text-decoration: none; font-weight: 500; font-size: 18px; display: block; margin-bottom: 8px;">
+                                    ${page.title}
+                                </a>
+                                <div style="color: #4d5156; font-size: 14px; line-height: 1.4;">${page.excerpt}</div>
                             </div>
                         `;
-                    }
+                    });
                     
-                    if (resultsHTML === '') {
-                        resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
-                    } else {
-                        resultsContainer.innerHTML = resultsHTML;
-                    }
-                    
-                } catch (error) {
-                    console.error('Search error:', error);
-                    resultsContainer.innerHTML = '<div class="no-results">Search temporarily unavailable</div>';
-                }
+                    searchContainer.innerHTML = html;
+                });
+                
+                statusElement.innerHTML = 'Using manual search';
             }
-            
-            // Initialize Pagefind in background
-            initializePagefind();
         });
     </script>
-    
-    <!-- Hidden container for Pagefind -->
-    <div id="pagefind-hidden" style="display: none;"></div>
 </body>
 </html>
