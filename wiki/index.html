@@ -92,7 +92,13 @@
     <link href="pagefind/pagefind-ui.css" rel="stylesheet">
 </head>
 <body>
-    <div id="search"></div>
+    <div class="search-container">
+        <h1 style="margin-bottom: 20px; color: #333; font-weight: 300;">Search Wiki</h1>
+        <input type="text" class="search-input" placeholder="Search knowledge base..." id="search-input" autofocus>
+        <div id="status" class="status">Loading search...</div>
+        <div id="search"></div>
+    </div>
+    
     <a href="/" class="home-link">
         <img src="../img/pinwheel-star.svg" alt="Main Site" class="pinwheel-icon">
     </a>
