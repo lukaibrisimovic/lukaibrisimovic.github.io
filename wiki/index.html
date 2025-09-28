@@ -137,34 +137,13 @@
 
     <!-- Pagefind JS only (no CSS) -->
      <!-- Pagefind JS -->
-    <script src="pagefind/pagefind-ui.js"></script>
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet">
+    <script src="/pagefind/pagefind-ui.js"></script>
+    <div id="search"></div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Pagefind with custom placeholder
-            if (typeof PagefindUI !== 'undefined') {
-                const pagefind = new PagefindUI({ 
-                    element: "#search",
-                    showImages: false,
-                    showEmptyFilters: false,
-                    placeholder: "Search knowledge base...",
-                    autofocus: true
-                });
-                
-                console.log('Pagefind initialized successfully');
-                
-                // Customize the search input after Pagefind creates it
-                setTimeout(() => {
-                    const pagefindInput = document.querySelector('.pagefind-ui__search-input');
-                    if (pagefindInput) {
-                        // Ensure it has our custom styles
-                        pagefindInput.classList.add('pagefind-ui__search-input');
-                    }
-                }, 100);
-            }
+        window.addEventListener('DOMContentLoaded', (event) => {
+            new PagefindUI({ element: "#search", showSubResults: true });
         });
     </script>
-    
-    <!-- Hidden container for Pagefind -->
-    <div id="pagefind-hidden" style="display: none;"></div>
 </body>
 </html>
