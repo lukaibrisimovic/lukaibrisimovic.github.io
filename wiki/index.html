@@ -73,7 +73,10 @@
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
-        new PagefindUI({ element: "#search", showImages: false});
+        new PagefindUI({ element: "#search", showImages: false, translations: {
+        placeholder: "Search my website",
+        clear_search: "X"
+    }});
     });
     </script>
 </body>
