@@ -37,6 +37,7 @@
             transition: all 0.2s ease;
             color: #333;
             background: white;
+            margin-bottom: 20px;
         }
         
         .search-input:focus {
@@ -46,6 +47,46 @@
         
         .search-input::placeholder {
             color: #9e9e9e;
+        }
+        
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .debug-info h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
         
         .home-link {
@@ -83,27 +124,106 @@
 <body>
     <div class="search-container">
         <input type="text" class="search-input" placeholder="Search wiki..." id="search-input" autofocus>
+        
+        <div class="debug-info">
+            <h3>Search Debug Information</h3>
+            <div id="debug-status">Initializing...</div>
+        </div>
     </div>
 
     <a href="/" class="home-link">
-        <img src="../img/safari-pinned-tab.svg" alt="Main Site" class="pinwheel-icon">
+        <img src="../img/pinwheel-star.svg" alt="Main Site" class="pinwheel-icon">
+        Main Site
     </a>
 
     <script src="https://cdn.jsdelivr.net/npm/pagefind@0.12.0/pagefind-ui.js"></script>
     <script>
-        const INDEX_VERSION = "2025-09-28";
+        const INDEX_VERSION = "2024-01-15";
+        let debugElement = document.getElementById('debug-status');
         
+        // Clear old index when version changes
         if (localStorage.getItem('pagefind_version') !== INDEX_VERSION) {
+            debugElement.innerHTML = '<div class="status info">🔄 Clearing old index and rebuilding...</div>';
             localStorage.removeItem('pagefind_index');
+            localStorage.removeItem('pagefind_documents');
             localStorage.setItem('pagefind_version', INDEX_VERSION);
+        } else {
+            debugElement.innerHTML = '<div class="status info">✅ Using cached index</div>';
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            new PagefindUI({ 
-                element: "#pagefind-hidden",
-                showImages: false
-            });
-            document.getElementById('search-input').focus();
+        // Test function to check if pages are accessible
+        async function testPageAccess() {
+            const testPages = ['tom-hanks.html', 'physics.html'];
+            let accessiblePages = [];
+            
+            for (const page of testPages) {
+                try {
+                    const response = await fetch(page);
+                    if (response.ok) {
+                        accessiblePages.push(page);
+                    }
+                } catch (error) {
+                    console.log(`Cannot access ${page}:`, error);
+                }
+            }
+            
+            return accessiblePages;
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            debugElement.innerHTML += '<div class="status info">🔄 Loading Pagefind...</div>';
+            
+            try {
+                // Test if pages are accessible
+                const accessiblePages = await testPageAccess();
+                debugElement.innerHTML += `<div class="status ${accessiblePages.length > 0 ? 'success' : 'error'}">📄 Accessible pages: ${accessiblePages.join(', ') || 'None found'}</div>`;
+                
+                const pagefindUI = new PagefindUI({ 
+                    element: "#pagefind-hidden",
+                    showImages: false
+                });
+                
+                debugElement.innerHTML += '<div class="status success">✅ Pagefind loaded successfully</div>';
+                
+                // Wait a bit then test search
+                setTimeout(async () => {
+                    if (window.Pagefind) {
+                        try {
+                            debugElement.innerHTML += '<div class="status info">🔍 Testing search for "tom"...</div>';
+                            const testResults = await window.Pagefind.search("tom");
+                            
+                            if (testResults && testResults.results) {
+                                debugElement.innerHTML += `<div class="status success">✅ Test search found ${testResults.results.length} results for "tom"</div>`;
+                                
+                                if (testResults.results.length > 0) {
+                                    const firstResult = await testResults.results[0].data();
+                                    debugElement.innerHTML += `<div class="status success">📄 First result: ${firstResult.url}</div>`;
+                                }
+                            } else {
+                                debugElement.innerHTML += '<div class="status error">❌ Test search found no results for "tom"</div>';
+                            }
+                        } catch (searchError) {
+                            debugElement.innerHTML += `<div class="status error">❌ Search error: ${searchError.message}</div>`;
+                        }
+                    } else {
+                        debugElement.innerHTML += '<div class="status error">❌ Pagefind API not available</div>';
+                    }
+                }, 2000);
+                
+                document.getElementById('search-input').focus();
+                
+            } catch (error) {
+                debugElement.innerHTML += `<div class="status error">❌ Error loading Pagefind: ${error.message}</div>`;
+            }
+        });
+        
+        // Monitor search input
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const query = e.target.value;
+            const statusElement = document.createElement('div');
+            statusElement.className = 'status info';
+            statusElement.textContent = `Searching for: "${query}"`;
+            debugElement.appendChild(statusElement);
         });
     </script>
     
