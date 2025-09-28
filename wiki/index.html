@@ -24,14 +24,10 @@
             padding: 20px;
         }
 
-        #search {
-            width: 100%;
-            max-width: 600px;
-            --pagefind-ui-border-width: 2px;
-            --pagefind-ui-border-radius: 24px;
-        }
-
         #search-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
             transition: transform 0.4s ease, margin 0.4s ease;
             margin-top: 20vh; /* initial lower position */
         }
@@ -39,6 +35,13 @@
         #search-container.active {
             transform: translateY(-15vh); /* slide up when results show */
             margin-top: 5vh;
+        }
+
+        #search {
+            width: 100%;
+            max-width: 600px;
+            --pagefind-ui-border-width: 2px;
+            --pagefind-ui-border-radius: 24px;
         }
 
         /* Animate search results */
