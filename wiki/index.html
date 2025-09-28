@@ -20,7 +20,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px 20px 80px 20px;
+            justify-content: center;
+            padding: 20px;
         }
 
         #search {
@@ -73,9 +74,7 @@
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
-        new PagefindUI({ element: "#search", showImages: false, translations: {
-        placeholder: "Search my website"
-    }});
+        new PagefindUI({ element: "#search", showImages: false});
     });
     </script>
 </body>
