@@ -3,37 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tom Hanks - My Wiki</title>
+    <title>Tom Hanks - Wiki</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #333; line-height: 1.6; }
-        .nav { margin-bottom: 30px; }
-        .nav a { color: #4285f4; text-decoration: none; margin-right: 15px; }
-        h1 { margin-bottom: 20px; color: #1a1a1a; }
-        .content { margin-top: 30px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: 80px; /* Space for fixed header */
+        }
+        
+        .search-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            outline: none;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #4285f4;
+            box-shadow: 0 1px 4px rgba(66, 133, 244, 0.2);
+        }
+        
+        .search-input::placeholder {
+            color: #9e9e9e;
+        }
+        
+        .content {
+            flex: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px 80px 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        h2 {
+            margin: 30px 0 15px 0;
+            color: #1a1a1a;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .nav-links {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            z-index: 1000;
+        }
+        
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+            padding: 8px 12px;
+            border-radius: 16px;
+        }
+        
+        .nav-link:hover {
+            color: #4285f4;
+            background: #f8f9fa;
+        }
+        
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .pinwheel-icon {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-link:hover .pinwheel-icon {
+            transform: rotate(180deg);
+        }
+        
+        .nav-link:hover .nav-icon {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <a href="index.html">Wiki Home</a>
-        <a href="search.html">Search</a>
-        <a href="/">Main Site</a>
+    <!-- Fixed Search Header -->
+    <div class="search-header">
+        <input type="text" class="search-input" placeholder="Search wiki..." onclick="window.location.href='index.html'">
     </div>
-    
-    <h1>Tom Hanks</h1>
-    <p><em>Academy Award winning actor</em></p>
-    
+
+    <!-- Page Content -->
     <div class="content">
+        <h1>Tom Hanks</h1>
+        <p><em>Academy Award winning actor and filmmaker</em></p>
+        
         <h2>Biography</h2>
-        <p>Thomas Jeffrey Hanks is an American actor and filmmaker. Known for both his comedic and dramatic roles, he is one of the most popular and recognizable film stars worldwide.</p>
+        <p>Thomas Jeffrey Hanks is an American actor and filmmaker. Known for both his comedic and dramatic roles, he is one of the most popular and recognizable film stars worldwide, and is regarded as an American cultural icon.</p>
+        
+        <p>Hanks' films have grossed more than $4.9 billion in North America and more than $9.96 billion worldwide, making him the fourth-highest-grossing actor in North America. He has received numerous awards and accolades, including two consecutive Academy Awards for Best Actor.</p>
+
+        <h2>Early Life and Career</h2>
+        <p>Hanks was born in Concord, California, on July 9, 1956. He began his acting career in theater and television before gaining recognition for his role in the television series Bosom Buddies. His breakthrough film role came in 1984 with Splash.</p>
         
         <h2>Notable Films</h2>
         <ul>
-            <li>Forrest Gump (1994)</li>
-            <li>Cast Away (2000)</li>
-            <li>Saving Private Ryan (1998)</li>
-            <li>Philadelphia (1993)</li>
+            <li><strong>Forrest Gump</strong> (1994) - Academy Award for Best Actor</li>
+            <li><strong>Philadelphia</strong> (1993) - Academy Award for Best Actor</li>
+            <li><strong>Cast Away</strong> (2000) - Nominated for Best Actor</li>
+            <li><strong>Saving Private Ryan</strong> (1998) - Directed by Steven Spielberg</li>
+            <li><strong>Toy Story series</strong> (1995-present) - Voice of Woody</li>
+            <li><strong>Apollo 13</strong> (1995) - Astronaut Jim Lovell</li>
+            <li><strong>The Green Mile</strong> (1999) - Prison guard Paul Edgecomb</li>
         </ul>
+        
+        <h2>Awards and Recognition</h2>
+        <p>Tom Hanks has won numerous awards, including two consecutive Academy Awards for Best Actor, four Golden Globe Awards, and a Tony Award. He is one of only two actors to win Best Actor Oscars back-to-back.</p>
+        
+        <p>In 2014, he received a Kennedy Center Honor, and in 2016, he was awarded the Presidential Medal of Freedom by President Barack Obama.</p>
+
+        <h2>Personal Life</h2>
+        <p>Hanks has been married to actress Rita Wilson since 1988. He is known for his philanthropy and has been involved in various charitable causes, including space exploration advocacy and veterans' support.</p>
+
+        <h2>Filmography Highlights</h2>
+        <p>Throughout his career, Hanks has demonstrated remarkable versatility, moving seamlessly between comedy and drama. His performances in films like "Big," "Sleepless in Seattle," and "You've Got Mail" established him as a leading romantic comedy star, while his work in "Philadelphia," "Forrest Gump," and "Saving Private Ryan" showcased his dramatic range.</p>
+
+        <h2>Legacy</h2>
+        <p>Tom Hanks is widely regarded as one of the greatest actors of his generation. His ability to portray ordinary characters in extraordinary circumstances has made him one of the most beloved figures in American cinema. His work continues to inspire new generations of actors and filmmakers.</p>
     </div>
+
+    <!-- Navigation Links at Bottom -->
+    <div class="nav-links">
+        <a href="index.html" class="nav-link">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </a>
+        
+        <a href="/" class="nav-link">
+            <img src="../img/safari-pinned-tab.svg" alt="Main Site" class="pinwheel-icon">
+        </a>
+        
+        <a href="#" class="nav-link" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M18 15l-6-6-6 6"></path>
+            </svg>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/pagefind@0.12.0/pagefind-ui.js"></script>
+    <script>
+        const INDEX_VERSION = "2024-01-15";
+        
+        if (localStorage.getItem('pagefind_version') !== INDEX_VERSION) {
+            localStorage.removeItem('pagefind_index');
+            localStorage.setItem('pagefind_version', INDEX_VERSION);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            new PagefindUI({ 
+                element: "#pagefind-hidden",
+                showImages: false
+            });
+        });
+    </script>
+    
+    <div id="pagefind-hidden" style="display: none;"></div>
 </body>
 </html>
