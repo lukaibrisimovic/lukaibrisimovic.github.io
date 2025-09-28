@@ -46,16 +46,44 @@
             --pagefind-ui-border-radius: 24px;
         }
 
-        /* Animate search results */
-        .pagefind-ui__results {
+        /* Base hidden state for results */
+        .pagefind-ui__result {
             opacity: 0;
-            transform: translateY(15px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: translateY(10px);
         }
 
-        .pagefind-ui__results.active {
-            opacity: 1;
-            transform: translateY(0);
+        /* When results container is active, trigger animations */
+        .pagefind-ui__results.active .pagefind-ui__result {
+            animation: resultFadeIn 0.4s ease forwards;
+        }
+
+        /* Stagger using nth-child */
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+        .pagefind-ui__results.active .pagefind-ui__result:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+        /* add more if you expect lots of results */
+
+        @keyframes resultFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .home-link {
