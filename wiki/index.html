@@ -20,41 +20,46 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             padding: 20px;
-            transition: padding 1s ease; /* Smooth padding transition */
+            transition: padding-top 0.5s ease;
         }
 
-        /* When search has results, adjust body padding to move content up smoothly */
-        body.has-results {
-            transition: all 1s ease;
+        .search-wrapper {
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.5s ease;
+            /* Start position - centered */
+            position: relative;
+            top: 0;
+        }
+
+        /* When search has results, move the wrapper up */
+        body.has-results .search-wrapper {
+            position: relative;
+            top: -100px; /* Adjust this value based on how much you want it to slide up */
         }
 
         #search {
             width: 100%;
-            max-width: 600px;
             --pagefind-ui-border-width: 2px;
             --pagefind-ui-border-radius: 24px;
-            transition: all 1s ease; /* Smooth transition for search bar */
         }
 
         /* Smooth transitions for Pagefind UI elements */
         .pagefind-ui__results {
-            transition: all 1s ease;
             opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInUp 1s ease forwards;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease 0.3s forwards; /* Delay to sync with slide */
         }
 
         .pagefind-ui__result {
-            transition: all 1s ease;
             opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInUp 1s ease forwards;
+            transform: translateY(20px);
+            animation: fadeInUp 0.4s ease forwards;
         }
 
         .pagefind-ui__result-inner {
-            transition: all 0.8s ease;
+            transition: all 0.3s ease;
         }
 
         .pagefind-ui__result:hover .pagefind-ui__result-inner {
@@ -62,16 +67,15 @@
         }
 
         .pagefind-ui__message {
-            transition: all 1s ease;
             opacity: 0;
-            animation: fadeIn 1s ease forwards;
+            animation: fadeIn 0.5s ease 0.3s forwards; /* Delay to sync with slide */
         }
 
         /* Keyframe animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -89,12 +93,12 @@
         }
 
         /* Stagger animation for individual results */
-        .pagefind-ui__result:nth-child(1) { animation-delay: 0.05s; }
-        .pagefind-ui__result:nth-child(2) { animation-delay: 0.1s; }
-        .pagefind-ui__result:nth-child(3) { animation-delay: 0.15s; }
-        .pagefind-ui__result:nth-child(4) { animation-delay: 0.2s; }
-        .pagefind-ui__result:nth-child(5) { animation-delay: 0.25s; }
-        .pagefind-ui__result:nth-child(6) { animation-delay: 0.3s; }
+        .pagefind-ui__result:nth-child(1) { animation-delay: 0.4s; }
+        .pagefind-ui__result:nth-child(2) { animation-delay: 0.45s; }
+        .pagefind-ui__result:nth-child(3) { animation-delay: 0.5s; }
+        .pagefind-ui__result:nth-child(4) { animation-delay: 0.55s; }
+        .pagefind-ui__result:nth-child(5) { animation-delay: 0.6s; }
+        .pagefind-ui__result:nth-child(6) { animation-delay: 0.65s; }
         
         .home-link {
             position: fixed;
@@ -129,7 +133,9 @@
     </style>
 </head>
 <body>
-    <div id="search"></div>
+    <div class="search-wrapper">
+        <div id="search"></div>
+    </div>
 
     <a href="/" class="home-link">
         <img src="../img/safari-pinned-tab.svg" alt="Main Site" class="pinwheel-icon">
@@ -156,9 +162,13 @@
                         const hasMessage = document.querySelector('.pagefind-ui__message') !== null;
                         
                         if (hasResults || hasMessage) {
-                            body.classList.add('has-results');
+                            setTimeout(() => {
+                                body.classList.add('has-results');
+                            }, 10);
                         } else {
-                            body.classList.remove('has-results');
+                            setTimeout(() => {
+                                body.classList.remove('has-results');
+                            }, 10);
                         }
                     }
                 });
@@ -174,7 +184,19 @@
             const searchInput = document.querySelector('#search input[type="search"]');
             if (searchInput) {
                 searchInput.addEventListener('focus', () => {
-                    body.classList.add('has-results');
+                    setTimeout(() => {
+                        body.classList.add('has-results');
+                    }, 10);
+                });
+
+                searchInput.addEventListener('blur', (e) => {
+                    // Only remove if there are no results
+                    const hasResults = document.querySelector('.pagefind-ui__results') !== null;
+                    if (!hasResults && !e.relatedTarget) {
+                        setTimeout(() => {
+                            body.classList.remove('has-results');
+                        }, 10);
+                    }
                 });
             }
         });
