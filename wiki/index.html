@@ -14,11 +14,11 @@
         
         body {
             background-color: #ffffff;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 40px 20px 80px 20px;
         }
         
         .search-container {
@@ -37,6 +37,7 @@
             transition: all 0.2s ease;
             color: #333;
             background: white;
+            margin-bottom: 30px;
         }
         
         .search-input:focus {
@@ -48,33 +49,11 @@
             color: #9e9e9e;
         }
         
-        .fallback-results {
-            margin-top: 20px;
-            text-align: left;
-        }
-        
-        .fallback-result {
-            padding: 15px;
-            border: 1px solid #f0f0f0;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .fallback-result a {
-            color: #1a0dab;
-            text-decoration: none;
-            font-weight: 500;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .fallback-result a:hover {
-            text-decoration: underline;
-        }
-        
-        .fallback-excerpt {
-            color: #4d5156;
+        .status {
+            color: #666;
             font-size: 14px;
+            margin-bottom: 20px;
+            min-height: 20px;
         }
         
         .home-link {
@@ -108,127 +87,120 @@
             transform: rotate(180deg);
         }
     </style>
+    
+    <!-- Pagefind CSS -->
+    <link href="pagefind/pagefind-ui.css" rel="stylesheet">
 </head>
 <body>
     <div class="search-container">
-        <input type="text" class="search-input" placeholder="Search wiki..." id="search-input" autofocus>
-        <div id="fallback-results" class="fallback-results"></div>
+        <h1 style="margin-bottom: 20px; color: #333; font-weight: 300;">Search Wiki</h1>
+        <input type="text" class="search-input" placeholder="Search knowledge base..." id="search-input" autofocus>
+        <div id="status" class="status">Loading search...</div>
+        <div id="search"></div>
     </div>
 
     <a href="/" class="home-link">
-        <img src="../img/pinwheel-star.svg" alt="Main Site" class="pinwheel-icon">
-        Main Site
+        <img src="../img/safari-pinned-tab.svg" alt="Main Site" class="pinwheel-icon">
     </a>
 
+    <!-- Pagefind JS -->
+    <script src="pagefind/pagefind-ui.js"></script>
     <script>
-        // Simple manual search as fallback
-        const wikiPages = [
-            {
-                title: "Tom Hanks",
-                url: "tom-hanks.html",
-                excerpt: "Academy Award winning actor and filmmaker known for Forrest Gump, Cast Away, and Saving Private Ryan.",
-                tags: ["actor", "hollywood", "oscar"]
-            },
-            {
-                title: "Physics Concepts",
-                url: "physics.html", 
-                excerpt: "Fundamental concepts in physics including quantum mechanics, relativity, and classical mechanics.",
-                tags: ["science", "physics", "quantum"]
-            }
-            // Add more pages as you create them
-        ];
-
-        function performManualSearch(query) {
-            const resultsContainer = document.getElementById('fallback-results');
-            const lowercaseQuery = query.toLowerCase().trim();
-            
-            if (lowercaseQuery.length < 2) {
-                resultsContainer.innerHTML = '';
-                return;
-            }
-            
-            const results = wikiPages.filter(page => 
-                page.title.toLowerCase().includes(lowercaseQuery) ||
-                page.excerpt.toLowerCase().includes(lowercaseQuery) ||
-                page.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
-            );
-            
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<div class="fallback-result">No results found</div>';
-                return;
-            }
-            
-            let resultsHTML = '';
-            results.forEach(page => {
-                resultsHTML += `
-                    <div class="fallback-result">
-                        <a href="${page.url}">${page.title}</a>
-                        <div class="fallback-excerpt">${page.excerpt}</div>
-                    </div>
-                `;
-            });
-            
-            resultsContainer.innerHTML = resultsHTML;
-        }
-
-        // Initialize search
         document.addEventListener('DOMContentLoaded', function() {
+            const statusElement = document.getElementById('status');
             const searchInput = document.getElementById('search-input');
             
-            // Focus on search input
+            // Focus search input
             searchInput.focus();
             
-            // Handle search input
-            let searchTimeout;
-            searchInput.addEventListener('input', function(e) {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    performManualSearch(e.target.value);
-                }, 300);
-            });
+            // Initialize Pagefind
+            initializePagefind();
             
-            // Try to load Pagefind, but don't break if it fails
-            loadPagefind();
-        });
-
-        function loadPagefind() {
-            // Create script element for Pagefind
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/pagefind@0.12.0/pagefind-ui.js';
-            script.onload = function() {
-                console.log('Pagefind loaded successfully');
-                try {
-                    // Clear old index
-                    const INDEX_VERSION = "2024-01-15";
-                    if (localStorage.getItem('pagefind_version') !== INDEX_VERSION) {
-                        localStorage.removeItem('pagefind_index');
-                        localStorage.setItem('pagefind_version', INDEX_VERSION);
+            function initializePagefind() {
+                if (typeof PagefindUI !== 'undefined') {
+                    try {
+                        new PagefindUI({ 
+                            element: "#search",
+                            showImages: false,
+                            showEmptyFilters: false,
+                            autofocus: false, // We're handling focus manually
+                            processResult: (result) => {
+                                // You can filter results here if needed
+                                return result;
+                            }
+                        });
+                        
+                        statusElement.innerHTML = '🔍 Search ready - start typing';
+                        console.log('Pagefind initialized successfully');
+                        
+                    } catch (error) {
+                        console.error('Pagefind error:', error);
+                        statusElement.innerHTML = '⚠️ Search error - using manual fallback';
+                        initializeManualSearch();
+                    }
+                } else {
+                    statusElement.innerHTML = '⚠️ Pagefind not loaded - using manual search';
+                    initializeManualSearch();
+                }
+            }
+            
+            function initializeManualSearch() {
+                // Simple manual search fallback
+                const manualPages = [
+                    { 
+                        title: "Tom Hanks", 
+                        url: "tom-hanks.html", 
+                        excerpt: "Academy Award winning actor and filmmaker" 
+                    },
+                    { 
+                        title: "Physics Concepts", 
+                        url: "physics.html", 
+                        excerpt: "Fundamental concepts in physics" 
+                    }
+                    // Add more pages here
+                ];
+                
+                const searchContainer = document.getElementById('search');
+                
+                searchInput.addEventListener('input', function(e) {
+                    const query = e.target.value.toLowerCase().trim();
+                    
+                    if (query.length < 2) {
+                        searchContainer.innerHTML = '';
+                        statusElement.innerHTML = 'Type to search...';
+                        return;
                     }
                     
-                    // Initialize Pagefind
-                    if (typeof PagefindUI !== 'undefined') {
-                        new PagefindUI({ 
-                            element: "#pagefind-hidden",
-                            showImages: false
-                        });
-                        console.log('PagefindUI initialized');
+                    const results = manualPages.filter(page => 
+                        page.title.toLowerCase().includes(query) ||
+                        page.excerpt.toLowerCase().includes(query)
+                    );
+                    
+                    statusElement.innerHTML = `Found ${results.length} result${results.length !== 1 ? 's' : ''}`;
+                    
+                    if (results.length === 0) {
+                        searchContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">No results found</div>';
+                        return;
                     }
-                } catch (error) {
-                    console.log('Pagefind initialization failed:', error);
-                }
-            };
-            script.onerror = function() {
-                console.log('Failed to load Pagefind, using manual search');
-                document.getElementById('fallback-results').innerHTML = 
-                    '<div class="fallback-result">Using manual search. Pagefind failed to load.</div>';
-            };
-            
-            // Add to document
-            document.head.appendChild(script);
-        }
+                    
+                    let html = '';
+                    results.forEach(page => {
+                        html += `
+                            <div style="padding: 20px; border: 1px solid #f0f0f0; border-radius: 8px; margin-bottom: 15px;">
+                                <a href="${page.url}" style="color: #1a0dab; text-decoration: none; font-weight: 500; font-size: 18px; display: block; margin-bottom: 8px;">
+                                    ${page.title}
+                                </a>
+                                <div style="color: #4d5156; font-size: 14px; line-height: 1.4;">${page.excerpt}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    searchContainer.innerHTML = html;
+                });
+                
+                statusElement.innerHTML = 'Using manual search';
+            }
+        });
     </script>
-    
-    <!-- Hidden container for Pagefind (if it loads) -->
-    <div id="pagefind-hidden" style="display: none;"></div>
 </body>
 </html>
