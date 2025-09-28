@@ -28,7 +28,7 @@
         .search-wrapper {
             width: 100%;
             max-width: 600px;
-            transition: all 0.5s ease;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             /* Start position - centered */
             position: relative;
             top: 0;
@@ -50,13 +50,23 @@
         .pagefind-ui__results {
             opacity: 0;
             transform: translateY(20px);
-            animation: fadeInUp 0.5s ease 0.3s forwards; /* Delay to sync with slide */
+            transition: opacity 0.4s ease 0.2s, transform 0.4s ease 0.2s;
+        }
+
+        body.has-results .pagefind-ui__results {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .pagefind-ui__result {
             opacity: 0;
             transform: translateY(20px);
-            animation: fadeInUp 0.4s ease forwards;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        body.has-results .pagefind-ui__result {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .pagefind-ui__result-inner {
@@ -69,37 +79,20 @@
 
         .pagefind-ui__message {
             opacity: 0;
-            animation: fadeIn 0.5s ease 0.3s forwards; /* Delay to sync with slide */
+            transition: opacity 0.4s ease 0.2s;
         }
 
-        /* Keyframe animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+        body.has-results .pagefind-ui__message {
+            opacity: 1;
         }
 
         /* Stagger animation for individual results */
-        .pagefind-ui__result:nth-child(1) { animation-delay: 0.4s; }
-        .pagefind-ui__result:nth-child(2) { animation-delay: 0.45s; }
-        .pagefind-ui__result:nth-child(3) { animation-delay: 0.5s; }
-        .pagefind-ui__result:nth-child(4) { animation-delay: 0.55s; }
-        .pagefind-ui__result:nth-child(5) { animation-delay: 0.6s; }
-        .pagefind-ui__result:nth-child(6) { animation-delay: 0.65s; }
+        body.has-results .pagefind-ui__result:nth-child(1) { transition-delay: 0.25s; }
+        body.has-results .pagefind-ui__result:nth-child(2) { transition-delay: 0.3s; }
+        body.has-results .pagefind-ui__result:nth-child(3) { transition-delay: 0.35s; }
+        body.has-results .pagefind-ui__result:nth-child(4) { transition-delay: 0.4s; }
+        body.has-results .pagefind-ui__result:nth-child(5) { transition-delay: 0.45s; }
+        body.has-results .pagefind-ui__result:nth-child(6) { transition-delay: 0.5s; }
         
         .home-link {
             position: fixed;
@@ -151,28 +144,34 @@
                 showImages: false
             });
 
-            // Add smooth transitions when search results appear
             const searchElement = document.getElementById('search');
             const body = document.body;
 
-            // Observer to watch for search results
+            // Track search state
+            let hasActiveSearch = false;
+
+            // Improved observer with better timing
             const observer = new MutationObserver((mutations) => {
+                let shouldAddResultsClass = false;
+                
                 mutations.forEach((mutation) => {
                     if (mutation.type === 'childList') {
-                        const hasResults = document.querySelector('.pagefind-ui__results') !== null;
-                        const hasMessage = document.querySelector('.pagefind-ui__message') !== null;
-                        
-                        if (hasResults || hasMessage) {
-                            setTimeout(() => {
-                                body.classList.add('has-results');
-                            }, 10);
-                        } else {
-                            setTimeout(() => {
-                                body.classList.remove('has-results');
-                            }, 10);
-                        }
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1 && // Element node
+                                (node.classList?.contains('pagefind-ui__results') || 
+                                 node.classList?.contains('pagefind-ui__message'))) {
+                                shouldAddResultsClass = true;
+                            }
+                        });
                     }
                 });
+
+                if (shouldAddResultsClass && hasActiveSearch) {
+                    // Use requestAnimationFrame for smoother timing
+                    requestAnimationFrame(() => {
+                        body.classList.add('has-results');
+                    });
+                }
             });
 
             // Start observing
@@ -181,25 +180,48 @@
                 subtree: true
             });
 
-            // Also add transition for the search input focus
+            // Handle search input focus and typing
             const searchInput = document.querySelector('#search input[type="search"]');
             if (searchInput) {
                 searchInput.addEventListener('focus', () => {
-                    setTimeout(() => {
-                        body.classList.add('has-results');
-                    }, 10);
+                    hasActiveSearch = true;
+                    body.classList.add('has-results');
+                });
+
+                searchInput.addEventListener('input', (e) => {
+                    hasActiveSearch = !!e.target.value.trim();
+                    if (!hasActiveSearch) {
+                        body.classList.remove('has-results');
+                    }
                 });
 
                 searchInput.addEventListener('blur', (e) => {
-                    // Only remove if there are no results
+                    // Only remove if there are no results and no text
                     const hasResults = document.querySelector('.pagefind-ui__results') !== null;
-                    if (!hasResults && !e.relatedTarget) {
-                        setTimeout(() => {
-                            body.classList.remove('has-results');
-                        }, 10);
+                    const hasText = e.target.value.trim() !== '';
+                    
+                    if (!hasResults && !hasText) {
+                        hasActiveSearch = false;
+                        body.classList.remove('has-results');
                     }
                 });
             }
+
+            // Also handle when user clears search completely
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('.pagefind-ui__reset')) {
+                    setTimeout(() => {
+                        const hasResults = document.querySelector('.pagefind-ui__results') !== null;
+                        const searchInput = document.querySelector('#search input[type="search"]');
+                        const hasText = searchInput && searchInput.value.trim() !== '';
+                        
+                        if (!hasResults && !hasText) {
+                            hasActiveSearch = false;
+                            body.classList.remove('has-results');
+                        }
+                    }, 50);
+                }
+            });
         });
     </script>
 </body>
