@@ -93,12 +93,11 @@
 </head>
 <body>
     <div class="search-container">
-        <h1 style="margin-bottom: 20px; color: #333; font-weight: 300;">Search Wiki</h1>
         <input type="text" class="search-input" placeholder="Search knowledge base..." id="search-input" autofocus>
         <div id="status" class="status">Loading search...</div>
         <div id="search"></div>
     </div>
-    
+
     <a href="/" class="home-link">
         <img src="../img/pinwheel-star.svg" alt="Main Site" class="pinwheel-icon">
     </a>
@@ -106,45 +105,9 @@
     <!-- Pagefind JS -->
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const statusElement = document.getElementById('status');
-            const searchInput = document.getElementById('search-input');
-            
-            // Focus search input
-            searchInput.focus();
-            
-            // Initialize Pagefind
-            initializePagefind();
-            
-            function initializePagefind() {
-                if (typeof PagefindUI !== 'undefined') {
-                    try {
-                        new PagefindUI({ 
-                            element: "#search",
-                            showImages: false,
-                            showEmptyFilters: false,
-                            autofocus: false, // We're handling focus manually
-                            processResult: (result) => {
-                                // You can filter results here if needed
-                                return result;
-                            }
-                        });
-                        
-                        statusElement.innerHTML = '🔍 Search ready - start typing';
-                        console.log('Pagefind initialized successfully');
-                        
-                    } catch (error) {
-                        console.error('Pagefind error:', error);
-                        statusElement.innerHTML = '⚠️ Search error - using manual fallback';
-                        initializeManualSearch();
-                    }
-                } else {
-                    statusElement.innerHTML = '⚠️ Pagefind not loaded - using manual search';
-                    initializeManualSearch();
-                }
-            }
-            
-        });
+        window.addEventListener('DOMContentLoaded', (event) => {
+        new PagefindUI({ element: "#search", showSubResults: true });
+    });
     </script>
 </body>
 </html>
