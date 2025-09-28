@@ -30,6 +30,28 @@
             --pagefind-ui-border-width: 2px;
             --pagefind-ui-border-radius: 24px;
         }
+
+        #search-container {
+            transition: transform 0.4s ease, margin 0.4s ease;
+            margin-top: 20vh; /* initial lower position */
+        }
+
+        #search-container.active {
+            transform: translateY(-15vh); /* slide up when results show */
+            margin-top: 5vh;
+        }
+
+        /* Animate search results */
+        .pagefind-ui__results {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .pagefind-ui__results.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
         
         .home-link {
             position: fixed;
@@ -64,7 +86,9 @@
     </style>
 </head>
 <body>
-    <div id="search"></div>
+    <div id="search-container">
+        <div id="search"></div>
+    </div>
 
     <a href="/" class="home-link">
         <img src="../img/safari-pinned-tab.svg" alt="Main Site" class="pinwheel-icon">
@@ -73,8 +97,23 @@
     <!-- Pagefind JS -->
     <script src="pagefind/pagefind-ui.js"></script>
     <script>
-        window.addEventListener('DOMContentLoaded', (event) => {
-        new PagefindUI({ element: "#search", showImages: false});
+    window.addEventListener('DOMContentLoaded', () => {
+        const searchUI = new PagefindUI({ element: "#search", showImages: false });
+        const container = document.getElementById("search-container");
+
+        // Observe changes to results
+        const observer = new MutationObserver(() => {
+            const results = document.querySelector(".pagefind-ui__results");
+            if (results && results.children.length > 0) {
+                container.classList.add("active");
+                results.classList.add("active");
+            } else {
+                container.classList.remove("active");
+                if (results) results.classList.remove("active");
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
     });
     </script>
 </body>
