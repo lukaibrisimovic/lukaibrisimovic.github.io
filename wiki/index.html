@@ -22,7 +22,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            transition: padding 3s ease; /* Smooth padding transition */
+            transition: padding 1s ease; /* Smooth padding transition */
         }
 
         /* When search has results, adjust body padding to move content up smoothly */
@@ -36,26 +36,26 @@
             max-width: 600px;
             --pagefind-ui-border-width: 2px;
             --pagefind-ui-border-radius: 24px;
-            transition: all 0.3s ease; /* Smooth transition for search bar */
+            transition: all 1s ease; /* Smooth transition for search bar */
         }
 
         /* Smooth transitions for Pagefind UI elements */
         .pagefind-ui__results {
-            transition: all 0.3s ease;
+            transition: all 1s ease;
             opacity: 0;
             transform: translateY(10px);
-            animation: fadeInUp 0.3s ease forwards;
+            animation: fadeInUp 1s ease forwards;
         }
 
         .pagefind-ui__result {
-            transition: all 0.3s ease;
+            transition: all 1s ease;
             opacity: 0;
             transform: translateY(10px);
-            animation: fadeInUp 0.3s ease forwards;
+            animation: fadeInUp 1s ease forwards;
         }
 
         .pagefind-ui__result-inner {
-            transition: all 0.2s ease;
+            transition: all 0.8s ease;
         }
 
         .pagefind-ui__result:hover .pagefind-ui__result-inner {
@@ -63,9 +63,9 @@
         }
 
         .pagefind-ui__message {
-            transition: all 0.3s ease;
+            transition: all 1s ease;
             opacity: 0;
-            animation: fadeIn 0.3s ease forwards;
+            animation: fadeIn 1s ease forwards;
         }
 
         /* Keyframe animations */
