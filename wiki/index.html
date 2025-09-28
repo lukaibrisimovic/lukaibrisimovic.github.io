@@ -92,16 +92,8 @@
     <link href="pagefind/pagefind-ui.css" rel="stylesheet">
 </head>
 <body>
-    <div class="search-container">
-        <h1 style="margin-bottom: 20px; color: #333; font-weight: 300;">Search Wiki</h1>
-        <input type="text" class="search-input" placeholder="Search knowledge base..." id="search-input" autofocus>
-        <div id="status" class="status">Loading search...</div>
-        <div id="search"></div>
-    </div>
-
     <a href="/" class="home-link">
         <img src="../img/pinwheel-star.svg" alt="Main Site" class="pinwheel-icon">
-        Main Site
     </a>
 
     <!-- Pagefind JS -->
@@ -145,62 +137,6 @@
                 }
             }
             
-            function initializeManualSearch() {
-                // Simple manual search fallback
-                const manualPages = [
-                    { 
-                        title: "Tom Hanks", 
-                        url: "tom-hanks.html", 
-                        excerpt: "Academy Award winning actor and filmmaker" 
-                    },
-                    { 
-                        title: "Physics Concepts", 
-                        url: "physics.html", 
-                        excerpt: "Fundamental concepts in physics" 
-                    }
-                    // Add more pages here
-                ];
-                
-                const searchContainer = document.getElementById('search');
-                
-                searchInput.addEventListener('input', function(e) {
-                    const query = e.target.value.toLowerCase().trim();
-                    
-                    if (query.length < 2) {
-                        searchContainer.innerHTML = '';
-                        statusElement.innerHTML = 'Type to search...';
-                        return;
-                    }
-                    
-                    const results = manualPages.filter(page => 
-                        page.title.toLowerCase().includes(query) ||
-                        page.excerpt.toLowerCase().includes(query)
-                    );
-                    
-                    statusElement.innerHTML = `Found ${results.length} result${results.length !== 1 ? 's' : ''}`;
-                    
-                    if (results.length === 0) {
-                        searchContainer.innerHTML = '<div style="text-align: center; color: #666; padding: 40px;">No results found</div>';
-                        return;
-                    }
-                    
-                    let html = '';
-                    results.forEach(page => {
-                        html += `
-                            <div style="padding: 20px; border: 1px solid #f0f0f0; border-radius: 8px; margin-bottom: 15px;">
-                                <a href="${page.url}" style="color: #1a0dab; text-decoration: none; font-weight: 500; font-size: 18px; display: block; margin-bottom: 8px;">
-                                    ${page.title}
-                                </a>
-                                <div style="color: #4d5156; font-size: 14px; line-height: 1.4;">${page.excerpt}</div>
-                            </div>
-                        `;
-                    });
-                    
-                    searchContainer.innerHTML = html;
-                });
-                
-                statusElement.innerHTML = 'Using manual search';
-            }
         });
     </script>
 </body>
