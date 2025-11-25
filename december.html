@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>December</title>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-family: Arial, sans-serif;
+  }
+
+  .timer {
+    display: flex;
+    gap: 2vw;
+    font-size: clamp(40px, 10vw, 120px);
+  }
+
+  .time-section {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2em;
+  }
+
+  .digit {
+    width: 2ch;
+    text-align: right;
+  }
+
+  .label {
+    font-size: 0.25em;
+    color: #aaa;
+  }
+
+  @media screen and (max-width: 600px), screen and (orientation: portrait) {
+    .timer {
+      flex-direction: column;
+      align-items: center;
+      font-size: clamp(30px, 12vh, 80px);
+    }
+    .digit { text-align: center; width: auto; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="timer" id="countdown">
+  <div class="time-section" id="days">
+    <div class="digit">00</div><div class="label">d</div>
+  </div>
+  <div class="time-section" id="hours">
+    <div class="digit">00</div><div class="label">h</div>
+  </div>
+  <div class="time-section" id="minutes">
+    <div class="digit">00</div><div class="label">m</div>
+  </div>
+  <div class="time-section" id="seconds">
+    <div class="digit">00</div><div class="label">s</div>
+  </div>
+</div>
+
+<script>
+function pad(num) { 
+  return num.toString().padStart(2, '0'); 
+}
+
+// ---- UPDATED TARGET DATE ----
+const targetDate = new Date("2025-12-06T11:45:00+02:00");
+
+function updateTimer() {
+  const now = new Date();
+  let diff = targetDate - now;
+
+  if (diff <= 0) {
+    document.getElementById("countdown").textContent = "00:00:00:00";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000*60*60*24));
+  diff -= days * (1000*60*60*24);
+
+  const hours = Math.floor(diff / (1000*60*60));
+  diff -= hours * (1000*60*60);
+
+  const minutes = Math.floor(diff / (1000*60));
+  diff -= minutes * (1000*60);
+
+  const seconds = Math.floor(diff / 1000);
+
+  const values = { days, hours, minutes, seconds };
+
+  for (const [key, val] of Object.entries(values)) {
+    document.querySelector(`#${key} .digit`).textContent = pad(val);
+  }
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+</script>
+
+</body>
+</html>
